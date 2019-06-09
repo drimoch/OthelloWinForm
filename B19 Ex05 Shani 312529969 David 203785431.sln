@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.645
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloGUI", "OthelloGUI\OthelloGUI.csproj", "{A2D4E7FF-6790-46D6-8764-5D8D7B435877}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloLogic", "OthelloLogic\OthelloLogic.csproj", "{F091218B-BEB4-42F8-8684-71417DE83459}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2D4E7FF-6790-46D6-8764-5D8D7B435877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2D4E7FF-6790-46D6-8764-5D8D7B435877}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2D4E7FF-6790-46D6-8764-5D8D7B435877}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2D4E7FF-6790-46D6-8764-5D8D7B435877}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F091218B-BEB4-42F8-8684-71417DE83459}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F091218B-BEB4-42F8-8684-71417DE83459}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F091218B-BEB4-42F8-8684-71417DE83459}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F091218B-BEB4-42F8-8684-71417DE83459}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF537927-7693-4684-B285-3BECCC0010A3}
+	EndGlobalSection
+EndGlobal

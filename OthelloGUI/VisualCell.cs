@@ -13,7 +13,6 @@ namespace OthelloGUI
         private Image m_ImagePlayer2 = Properties.Resources.CoinYellow;
         private Cell m_LogicCell;
         private PictureBox m_Image;
-        private bool m_IsEmpty;
 
         public Cell LogicCell
         {
@@ -31,50 +30,29 @@ namespace OthelloGUI
             }
         }
 
-        public bool IsEmpty
-        {
-            get
-            {
-                return m_IsEmpty;
-            }
-        }
-
         public VisualCell(Cell i_Cell)
         {
             m_LogicCell = i_Cell;
+            m_Image = new PictureBox();
         }
 
-        public PictureBox SetImage(Cell i_Cell, int i_Height, int i_Width)
+        public void SetImage(Cell i_Cell, int i_Height, int i_Width)
         {
-            m_IsEmpty = false;
             Image currentPlayerImage = i_Cell.CellType == Cell.eType.Player1 ? m_ImagePlayer1 : m_ImagePlayer2;
-            PictureBox cellPicture = new PictureBox();
-            cellPicture.Image = currentPlayerImage;
-            cellPicture.Height = i_Height;
-            cellPicture.Width = i_Width;
-            cellPicture.SizeMode = PictureBoxSizeMode.StretchImage;
-
-            return cellPicture;
+            m_Image.Image = currentPlayerImage;
+            m_Image.Height = i_Height;
+            m_Image.Width = i_Width;
+            m_Image.BackColor = Color.Transparent;
+            m_Image.Cursor = Cursors.Arrow;
+            m_Image.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
-        public PictureBox SetEmptyCell(MouseEventHandler i_OnClick)
+        public void SetEmptyCell(MouseEventHandler i_OnClick)
         {
-            m_IsEmpty = true;
-            PictureBox cellEmpty = new PictureBox();
-            cellEmpty.BackColor = Color.Green;
-            cellEmpty.Cursor = Cursors.Hand;
-            cellEmpty.MouseClick += new MouseEventHandler(i_OnClick);
-            return cellEmpty;
-        }
-
-        public void ChangeCellType(Cell.eType i_NewType)
-        {
-            if (m_Image==null)
-            {
-                m_Image = new PictureBox();
-
-            }
-            m_Image.Image = i_NewType == Cell.eType.Player1 ? m_ImagePlayer1 : m_ImagePlayer2;
+            m_Image.BackColor = Color.Green;
+            m_Image.Cursor = Cursors.Hand;
+            m_Image.MouseClick -= i_OnClick; // remove old event if exists
+            m_Image.MouseClick += i_OnClick;
         }
     }
 }

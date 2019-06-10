@@ -44,15 +44,19 @@
             this.tableLayoutPanelGame.RowCount = 2;
             this.tableLayoutPanelGame.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelGame.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelGame.Size = new System.Drawing.Size(350, 350);
+            this.tableLayoutPanelGame.Size = new System.Drawing.Size(399, 388);
             this.tableLayoutPanelGame.TabIndex = 0;
             // 
             // GameBoard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(372, 371);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(425, 414);
             this.Controls.Add(this.tableLayoutPanelGame);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "GameBoard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameBoard";

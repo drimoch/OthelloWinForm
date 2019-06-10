@@ -11,10 +11,10 @@ namespace OthelloGUI
 {
     public partial class GameBoard : Form
     {
-        private string k_Player1 = "Red";
-        private string k_Player2 = "Yellow";
-        private int r_BoardSize;
-        private int r_NumOfPlayers;
+        private const string k_Player1 = "Red";
+        private const string k_Player2 = "Yellow";
+        private readonly int r_BoardSize;
+        private readonly int r_NumOfPlayers;
         private GameManager m_Manager;
         private List<VisualCell> m_VisualCells;
 
@@ -29,14 +29,19 @@ namespace OthelloGUI
             r_NumOfPlayers = i_NumOfPlayers;
             m_VisualCells = new List<VisualCell>();
             InitializeComponent();
-            startGame();
+            m_Manager = new GameManager();
+            startNewGame();
         }
 
-        private void startGame()
+        private void startNewGame()
         {
-            m_Manager = new GameManager(r_NumOfPlayers, r_BoardSize);
+            tableLayoutPanelGame.Visible = false;
+            tableLayoutPanelGame.Controls.Clear();
+            m_Manager.InitiateGame(r_NumOfPlayers, r_BoardSize);
+            m_VisualCells.Clear();
             setTable();
-            paintTable();
+            paintInitialTable();
+            tableLayoutPanelGame.Visible = true;
         }
 
         private void setTable()
@@ -53,7 +58,7 @@ namespace OthelloGUI
             }
         }
 
-        private void paintTable()
+        private void paintInitialTable()
         {
             List<Cell> validCells = m_Manager.GetValidCells();
             foreach (Cell cell in m_Manager.Board)
@@ -62,23 +67,43 @@ namespace OthelloGUI
                 m_VisualCells.Add(newCell);
                 if (cell.CellType != Cell.eType.Empty)
                 {
-                    PictureBox cellPicture = newCell.SetImage(cell, tableLayoutPanelGame.Size.Height / r_BoardSize, tableLayoutPanelGame.Size.Width / r_BoardSize);
-                    tableLayoutPanelGame.Controls.Add(cellPicture, cell.CellLocation.X, cell.CellLocation.Y);
+                    newCell.SetImage(cell, tableLayoutPanelGame.Size.Height / r_BoardSize, tableLayoutPanelGame.Size.Width / r_BoardSize);
+                    tableLayoutPanelGame.Controls.Add(newCell.Image, cell.CellLocation.X, cell.CellLocation.Y);
                 }
                 else
                 {
                     if (validCells.Contains(cell))
                     {
-                        PictureBox cellPicture = newCell.SetEmptyCell(pictureBox_Click);
-                        tableLayoutPanelGame.Controls.Add(cellPicture, cell.CellLocation.X, cell.CellLocation.Y);
+                        newCell.SetEmptyCell(pictureBox_Click);
+                        tableLayoutPanelGame.Controls.Add(newCell.Image, cell.CellLocation.X, cell.CellLocation.Y);
                     }
                 }
             }
+
+            Text = string.Format("Othello - {0}'s Turn", m_Manager.CurrentPlayer == m_Manager.Player1 ? k_Player1 : k_Player2);
         }
 
-        public void RefreshBoard()
+        private void refreshBoard(GameManager.eResponseCode i_Response = GameManager.eResponseCode.OK)
+        {
+            if (i_Response != GameManager.eResponseCode.OK)
+            {
+                getErrorMessage(i_Response);
+            }
+
+            printBoard();
+            GameManager.eResponseCode response = isBoardValid();
+            if (response != GameManager.eResponseCode.OK)
+            {
+                getErrorMessage(response);
+            }
+
+            Text = string.Format("Othello - {0}'s Turn", m_Manager.CurrentPlayer == m_Manager.Player1 ? k_Player1 : k_Player2);
+        }
+
+        private void printBoard()
         {
             List<Cell> validCells = m_Manager.GetValidCells();
+            tableLayoutPanelGame.Visible = false;
 
             foreach (VisualCell visualCell in m_VisualCells)
             {
@@ -87,8 +112,8 @@ namespace OthelloGUI
                     if (validCells.Contains(visualCell.LogicCell))
                     {
                         tableLayoutPanelGame.Controls.Remove(visualCell.Image);
-                        PictureBox cellPicture = visualCell.SetEmptyCell(pictureBox_Click);
-                        tableLayoutPanelGame.Controls.Add(cellPicture, visualCell.LogicCell.CellLocation.X, visualCell.LogicCell.CellLocation.Y);
+                        visualCell.SetEmptyCell(pictureBox_Click);
+                        tableLayoutPanelGame.Controls.Add(visualCell.Image, visualCell.LogicCell.CellLocation.X, visualCell.LogicCell.CellLocation.Y);
                     }
                     else if (visualCell.Image != null)
                     {
@@ -98,29 +123,42 @@ namespace OthelloGUI
                 }
                 else
                 {
-                    PictureBox cellPicture = visualCell.SetImage(visualCell.LogicCell, tableLayoutPanelGame.Size.Height / r_BoardSize, tableLayoutPanelGame.Size.Width / r_BoardSize);
+                    visualCell.Image.MouseClick -= pictureBox_Click;
+                    visualCell.SetImage(visualCell.LogicCell, tableLayoutPanelGame.Size.Height / r_BoardSize, tableLayoutPanelGame.Size.Width / r_BoardSize);
+                    tableLayoutPanelGame.Controls.Add(visualCell.Image, visualCell.LogicCell.CellLocation.X, visualCell.LogicCell.CellLocation.Y);
                 }
-
             }
+
+            tableLayoutPanelGame.Visible = true;
+        }
+
+        private bool isBoardFull()
+        {
+            bool isFull = true;
+            foreach(Cell cell in m_Manager.Board)
+            {
+                if(cell.CellType == Cell.eType.Empty)
+                {
+                    isFull = false;
+                    break;
+                }
+            }
+
+            return isFull;
+        }
+
+        private GameManager.eResponseCode isBoardValid()
+        {
+            return m_Manager.CheckValidCellsForBothPlayers();
         }
 
         private void pictureBox_Click(object sender, MouseEventArgs e)
         {
-            int y = tableLayoutPanelGame.GetRow((PictureBox)sender);
-            int x = tableLayoutPanelGame.GetColumn((PictureBox)sender);
-            GameManager.eResponseCode response = m_Manager.PlayTurn(x, y);
-            if (response != GameManager.eResponseCode.OK)
-            {
-                getErrorMessage(response);
-            }
-            else
-            {
-
-                m_Manager.ChangeCurrentPlayer();
-
-                RefreshBoard();
-                //printBoard after play with RefreshBoard
-            }
+            PictureBox picBox = sender as PictureBox;
+            int x = tableLayoutPanelGame.GetRow(picBox);
+            int y = tableLayoutPanelGame.GetColumn(picBox);
+            GameManager.eResponseCode reponse = m_Manager.PlayTurn(x, y);
+            refreshBoard(reponse);
         }
 
         private void getErrorMessage(GameManager.eResponseCode i_Error)
@@ -130,24 +168,12 @@ namespace OthelloGUI
 
             switch (i_Error)
             {
-                case GameManager.eResponseCode.CellIsInvalid:
-                    message = "The chosen cell is invalid, please choose another cell";
-                    break;
                 case GameManager.eResponseCode.NoValidCellsForPlayer:
                     message = "You have no valid cells. The turn will be moved to the second player";
                     break;
                 case GameManager.eResponseCode.NoValidCellsForBothPlayers:
                     message = endOfGameMessage();
                     endOfGame = true;
-                    break;
-                case GameManager.eResponseCode.InvalidMove:
-                    message = "The cell you chose doesn't block the competitor's coins, please try again";
-                    break;
-                case GameManager.eResponseCode.NotEmpty:
-                    message = "The chosen cell is not empty, please try again";
-                    break;
-                case GameManager.eResponseCode.OutOfRange:
-                    message = "The chosen cell is out of range, please try again";
                     break;
                 default:
                     message = string.Empty;
@@ -168,21 +194,20 @@ namespace OthelloGUI
             if (!i_EndOfGame)
             {
                 buttons = MessageBoxButtons.OK;
-                MessageBox.Show(i_Message, caption, buttons);
+                MessageBox.Show(i_Message, caption, buttons, MessageBoxIcon.Warning);
+                refreshBoard();
             }
             else
             {
                 buttons = MessageBoxButtons.YesNo;
-                DialogResult result;
-
-                result = MessageBox.Show(i_Message, caption, buttons);
-                if (result == System.Windows.Forms.DialogResult.No)
+                DialogResult result = MessageBox.Show(i_Message, caption, buttons, MessageBoxIcon.Information);
+                if (result == DialogResult.No)
                 {
-                    this.Close();
+                    Close();
                 }
                 else
                 {
-                    m_Manager.InitiateGame(r_NumOfPlayers, r_BoardSize);
+                    startNewGame();
                 }
             }
         }

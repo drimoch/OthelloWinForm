@@ -64,5 +64,10 @@ namespace OthelloLogic
             m_Score = 2; // 2 coins for each player when game starts
             m_RoundsWinner = 0;
         }
+
+        public void ClearPlayer()
+        {
+            m_Score = 2;
+        }
     }
 }

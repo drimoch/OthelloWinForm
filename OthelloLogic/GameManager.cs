@@ -4,11 +4,9 @@ using System.Text;
 
 namespace OthelloLogic
 {
-    public delegate void CellChangedDelegate(Cell i_Cell, Cell.eType i_NewType); 
     public class GameManager
     {
         // Members
-        private readonly int[] r_ValidBoardSizes = { 6, 8 };
         private Board m_GameBoard;
         private int m_NumOfPlayers;
         private Player m_Player1;
@@ -41,6 +39,14 @@ namespace OthelloLogic
             }
         }
 
+        public Player CurrentPlayer
+        {
+            get
+            {
+                return m_CurrentPlayer;
+            }
+        }
+
         public Player Winner
         {
             get
@@ -68,12 +74,6 @@ namespace OthelloLogic
             OK // no error
         }
 
-        // Methods
-        public GameManager(int i_NumOfPlayers, int i_BoardSize)
-        {
-            InitiateGame(i_NumOfPlayers, i_BoardSize);
-        }
-
         public void InitiateGame(int i_NumOfPlayers, int i_BoardSize)
         {
             m_GameBoard = new Board(i_BoardSize);
@@ -86,121 +86,57 @@ namespace OthelloLogic
 
         public eResponseCode PlayTurn(int i_X, int i_Y)
         {
-            eResponseCode response;
-            response = checkValidCellsForBothPlayers();
-            if(response == eResponseCode.OK)
+            eResponseCode response = eResponseCode.OK;
+            Cell.Location location = parseLocation(i_X, i_Y);
+            executeMove(location);
+            changeCurrentPlayer();
+            response = CheckValidCellsForBothPlayers();
+            if (response == eResponseCode.OK)
             {
                 if (m_CurrentPlayer.PlayerID == Player.ePlayerID.Computer)
                 {
-                    makeAiMove();
-                }
-                else
-                {
-                    Cell.Location location = parseLocation(i_X, i_Y);
-                    eResponseCode moveResponse = executeMove(location);
-                    if (moveResponse != eResponseCode.OK)
-                    {
-                        response = eResponseCode.InvalidMove;
-                    }
+                    response = makeAiMove();
+                    changeCurrentPlayer();
                 }
             }
-            else if (response == eResponseCode.NoValidCellsForBothPlayers)
-            {
-                calculateWinnerAndLooser();
-            }
-
-            ChangeCurrentPlayer();
 
             return response;
         }
 
-
-        /*private void playTurns()
-        {
-            while (m_Winner == null)
-            {
-                eResponseCode availableCells = checkValidCellsForBothPlayers();
-                if (availableCells == eResponseCode.NoValidCellsForBothPlayers)
-                {
-                    Player looser = calculateWinnerAndLooser();
-                    //r_ConsoleUI.PrintErrorMessege(availableCells);
-                   // r_ConsoleUI.GameOverMessege(m_Winner, looser, m_Player1.Score, m_Player2.Score);
-                    //finishGame();
-                }
-                else if (availableCells == eResponseCode.NoValidCellsForPlayer)
-                {
-                    //r_ConsoleUI.PrintErrorMessege(availableCells);
-                }
-                else
-                {
-                    if (m_CurrentPlayer.PlayerID == Player.ePlayerID.Computer)
-                    {
-                        makeAiMove();
-                    }
-                    else
-                    {
-                        string inputLocation = r_ConsoleUI.GetMoveFromUser(m_CurrentPlayer.PlayerID);
-                        Cell.Location location = parseLocation(inputLocation);
-                        eResponseCode moveResponse = executeMove(location);
-                        while (moveResponse != eResponseCode.OK)
-                        {
-                            //r_ConsoleUI.PrintErrorMessege(moveResponse);
-                            inputLocation = r_ConsoleUI.GetInputFromUser();
-                            location = parseLocation(inputLocation);
-                            moveResponse = executeMove(location);
-                        }
-                    }
-
-                    //r_ConsoleUI.PrintTheBoardAfterTurn();
-                }
-
-                changeCurrentPlayer();
-            }
-        }*/
-
         // This function calculates all possible moves
         // and choose the move that will gain the player most points
-        private void makeAiMove()
+        private eResponseCode makeAiMove()
         {
             int bestScore = int.MinValue;
+            eResponseCode response;
             List<Cell> computerCells = GetValidCells();
-            Cell bestMove = computerCells[0];
-
-            foreach (Cell move in computerCells)
+            if (computerCells.Count == 0)
             {
-                if (move.CellType == Cell.eType.Empty)
+                response = CheckValidCellsForBothPlayers();
+            }
+            else
+            {
+                Cell bestMove = computerCells[0];
+
+                foreach (Cell move in computerCells)
                 {
-                    int nodeScore = getListOfCellsToFlip(move.CellLocation).Count;
-                    if (nodeScore > bestScore)
+                    if (move.CellType == Cell.eType.Empty)
                     {
-                        bestScore = nodeScore;
-                        bestMove = move;
+                        int nodeScore = getListOfCellsToFlip(move.CellLocation).Count;
+                        if (nodeScore > bestScore)
+                        {
+                            bestScore = nodeScore;
+                            bestMove = move;
+                        }
                     }
                 }
+
+                executeMove(bestMove.CellLocation);
+                response = eResponseCode.OK;
             }
 
-            executeMove(bestMove.CellLocation);
+            return response;
         }
-
-        /*private List<Cell> getComputerValidCells()
-        {
-            List<Cell> computerValidCells = new List<Cell>();
-            List<Cell> tempList = new List<Cell>();
-
-            foreach (Cell cell in m_GameBoard.Matrix)
-            {
-                if (cell.CellType == Cell.eType.Empty)
-                {
-                    tempList = findCellsToFlip(cell.CellLocation, Cell.eType.Player2);
-                    if(tempList.Count > 0)
-                    {
-                        computerValidCells.Add(cell);
-                    }
-                }
-            }
-
-            return computerValidCells;
-        }*/
 
         public List<Cell> GetValidCells()
         {
@@ -289,7 +225,7 @@ namespace OthelloLogic
             m_Winner.RoundsWinner++;
         }
 
-        public void ChangeCurrentPlayer()
+        private void changeCurrentPlayer()
         {
             if (m_CurrentPlayer.PlayerID == Player.ePlayerID.Player1)
             {
@@ -400,18 +336,20 @@ namespace OthelloLogic
             return response;
         }
 
-        private eResponseCode checkValidCellsForBothPlayers()
+        public eResponseCode CheckValidCellsForBothPlayers()
         {
             eResponseCode response;
             Cell.eType currentType = m_CurrentPlayer.PlayerID == Player.ePlayerID.Player1 ? Cell.eType.Player1 : Cell.eType.Player2;
 
             if(checkValidCellsForPlayer(Cell.eType.Player1) == eResponseCode.NoValidCellsForPlayer && checkValidCellsForPlayer(Cell.eType.Player2) == eResponseCode.NoValidCellsForPlayer)
             {
+                calculateWinnerAndLooser();
                 response = eResponseCode.NoValidCellsForBothPlayers;
             }
             else if(checkValidCellsForPlayer(currentType) == eResponseCode.NoValidCellsForPlayer)
             {
                 response = eResponseCode.NoValidCellsForPlayer;
+                changeCurrentPlayer();
             }
             else
             {
@@ -423,60 +361,47 @@ namespace OthelloLogic
 
         private void initPlayers()
         {
-            m_Player1 = new Player(Player.ePlayerID.Player1);
-            m_CurrentPlayer = m_Player1;
-            if (m_NumOfPlayers == 2)
+            if(m_Player1 == null)
             {
-                m_Player2 = new Player(Player.ePlayerID.Player2);
+                m_Player1 = new Player(Player.ePlayerID.Player1);
             }
             else
             {
-                m_Player2 = new Player(Player.ePlayerID.Computer);
+                m_Player1.ClearPlayer();
+            }
+
+            m_CurrentPlayer = m_Player1;
+            if (m_NumOfPlayers == 2)
+            {
+                if (m_Player2 == null)
+                {
+                    m_Player2 = new Player(Player.ePlayerID.Player2);
+                }
+                else
+                {
+                    m_Player2.ClearPlayer();
+                }
+            }
+            else
+            {
+                if (m_Player2 == null)
+                {
+                    m_Player2 = new Player(Player.ePlayerID.Computer);
+                }
+                else
+                {
+                    m_Player2.ClearPlayer();
+                }
             }
         }
 
         private Cell.Location parseLocation(int i_X, int i_Y)
         {          
             Cell.Location chosenLocation = new Cell.Location();
-            chosenLocation.Y = i_X; // convert letter to number
+            chosenLocation.Y = i_X; 
             chosenLocation.X = i_Y;
 
             return chosenLocation;
-        }
-
-        private eResponseCode locationInputValidation(string i_InputLocation)
-        {
-            eResponseCode sendResponse = eResponseCode.OK;
-            int boardSize = m_GameBoard.Matrix.GetLength(0);
-
-            if (i_InputLocation.Length != 2)
-            {
-                sendResponse = eResponseCode.CellIsInvalid;
-            }
-            else if (i_InputLocation[0] < 'A' || i_InputLocation[0] > ('A' + boardSize) || i_InputLocation[1] < '1' || i_InputLocation[1] >= '1' + boardSize)
-            {
-                sendResponse = eResponseCode.OutOfRange;
-            }
-
-            return sendResponse;
-        }
-
-        private void finishGame()
-        {
-            /*if (r_ConsoleUI.StartNewGame())
-            {
-                initiateGame(m_NumOfPlayers, m_GameBoard.Matrix.GetLength(0));
-            }
-            else
-            {*/
-                Exit();
-            //}
-        }
-
-        private void Exit()
-        {
-           // r_ConsoleUI.GoodbyeMessege();
-            System.Environment.Exit(1);
         }
     }
 }

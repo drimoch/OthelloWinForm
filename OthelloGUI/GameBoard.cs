@@ -56,7 +56,6 @@ namespace OthelloGUI
         private void paintTable()
         {
             List<Cell> validCells = m_Manager.GetValidCells();
-
             foreach (Cell cell in m_Manager.Board)
             {
                 VisualCell newCell = new VisualCell(cell);
@@ -77,27 +76,38 @@ namespace OthelloGUI
             }
         }
 
-        public void ChangeCell(Cell i_Cell, Cell.eType i_NewType)
+        public void RefreshBoard()
         {
+            List<Cell> validCells = m_Manager.GetValidCells();
+
             foreach (VisualCell visualCell in m_VisualCells)
             {
-                if (visualCell.LogicCell == i_Cell)
+                if (visualCell.LogicCell.CellType == Cell.eType.Empty)
                 {
-                    if (i_NewType != Cell.eType.Empty && visualCell.IsEmpty)
+                    if (validCells.Contains(visualCell.LogicCell))
+                    {
+                        tableLayoutPanelGame.Controls.Remove(visualCell.Image);
+                        PictureBox cellPicture = visualCell.SetEmptyCell(pictureBox_Click);
+                        tableLayoutPanelGame.Controls.Add(cellPicture, visualCell.LogicCell.CellLocation.X, visualCell.LogicCell.CellLocation.Y);
+                    }
+                    else if (visualCell.Image != null)
                     {
                         visualCell.Image.MouseClick -= pictureBox_Click;
+                        tableLayoutPanelGame.Controls.Remove(visualCell.Image);
                     }
-
-                    visualCell.ChangeCellType(i_NewType);
-                    break;
                 }
+                else
+                {
+                    PictureBox cellPicture = visualCell.SetImage(visualCell.LogicCell, tableLayoutPanelGame.Size.Height / r_BoardSize, tableLayoutPanelGame.Size.Width / r_BoardSize);
+                }
+
             }
         }
 
         private void pictureBox_Click(object sender, MouseEventArgs e)
         {
-            int y=tableLayoutPanelGame.GetRow((PictureBox)sender);
-            int x=tableLayoutPanelGame.GetColumn((PictureBox)sender);
+            int y = tableLayoutPanelGame.GetRow((PictureBox)sender);
+            int x = tableLayoutPanelGame.GetColumn((PictureBox)sender);
             GameManager.eResponseCode response = m_Manager.PlayTurn(x, y);
             if (response != GameManager.eResponseCode.OK)
             {
@@ -105,20 +115,11 @@ namespace OthelloGUI
             }
             else
             {
-                int i=0;
-                foreach (Cell cell in m_Manager.Board)
-                {
-                    if (cell.CellType!= m_VisualCells[i].LogicCell.CellType)
-                    {
-                        m_VisualCells[i].ChangeCellType(cell.CellType);
 
-                        //understaand if the visualCell list logic cell, is matching gamemanagertable
-                        //m_VisualCells[i].Type = cell.CellType;
-                        //ChangeCell();
-                    }
-                    i++;
-                }
-                //printBoard after play with ChangeCell
+                m_Manager.ChangeCurrentPlayer();
+
+                RefreshBoard();
+                //printBoard after play with RefreshBoard
             }
         }
 

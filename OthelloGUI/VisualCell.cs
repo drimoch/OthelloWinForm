@@ -64,12 +64,16 @@ namespace OthelloGUI
             cellEmpty.BackColor = Color.Green;
             cellEmpty.Cursor = Cursors.Hand;
             cellEmpty.MouseClick += new MouseEventHandler(i_OnClick);
-
             return cellEmpty;
         }
 
         public void ChangeCellType(Cell.eType i_NewType)
         {
+            if (m_Image==null)
+            {
+                m_Image = new PictureBox();
+
+            }
             m_Image.Image = i_NewType == Cell.eType.Player1 ? m_ImagePlayer1 : m_ImagePlayer2;
         }
     }

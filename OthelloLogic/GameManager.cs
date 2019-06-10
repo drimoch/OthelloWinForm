@@ -109,7 +109,7 @@ namespace OthelloLogic
                 calculateWinnerAndLooser();
             }
 
-            changeCurrentPlayer();
+            ChangeCurrentPlayer();
 
             return response;
         }
@@ -289,7 +289,7 @@ namespace OthelloLogic
             m_Winner.RoundsWinner++;
         }
 
-        private void changeCurrentPlayer()
+        public void ChangeCurrentPlayer()
         {
             if (m_CurrentPlayer.PlayerID == Player.ePlayerID.Player1)
             {

@@ -96,8 +96,8 @@ namespace OthelloGUI
 
         private void pictureBox_Click(object sender, MouseEventArgs e)
         {
-            int x = (e.Location.X / (r_BoardSize + 1)) - 1;
-            int y = (e.Location.Y / (r_BoardSize + 1)) - 1;
+            int y=tableLayoutPanelGame.GetRow((PictureBox)sender);
+            int x=tableLayoutPanelGame.GetColumn((PictureBox)sender);
             GameManager.eResponseCode response = m_Manager.PlayTurn(x, y);
             if (response != GameManager.eResponseCode.OK)
             {
@@ -105,7 +105,20 @@ namespace OthelloGUI
             }
             else
             {
+                int i=0;
+                foreach (Cell cell in m_Manager.Board)
+                {
+                    if (cell.CellType!= m_VisualCells[i].LogicCell.CellType)
+                    {
+                        m_VisualCells[i].ChangeCellType(cell.CellType);
 
+                        //understaand if the visualCell list logic cell, is matching gamemanagertable
+                        //m_VisualCells[i].Type = cell.CellType;
+                        //ChangeCell();
+                    }
+                    i++;
+                }
+                //printBoard after play with ChangeCell
             }
         }
 

@@ -184,7 +184,7 @@ namespace OthelloGUI
                     break;
             }
 
-            if (message != string.Empty)
+            if (message != string.Empty&&m_Manager.CurrentPlayer.PlayerID!= Player.ePlayerID.Computer)
             {
                 displayMessageBox(message, endOfGame);
             }

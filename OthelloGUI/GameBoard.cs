@@ -17,6 +17,7 @@ namespace OthelloGUI
         private readonly int r_NumOfPlayers;
         private GameManager m_Manager;
         private List<VisualCell> m_VisualCells;
+        private bool m_UserEndGame = false;
 
         public GameBoard()
         {
@@ -89,7 +90,8 @@ namespace OthelloGUI
             {
                 getErrorMessage(i_Response);
             }
-
+            if (!m_UserEndGame)
+            {
             printBoard();
             GameManager.eResponseCode response = isBoardValid();
             if (response != GameManager.eResponseCode.OK)
@@ -98,6 +100,8 @@ namespace OthelloGUI
             }
 
             Text = string.Format("Othello - {0}'s Turn", m_Manager.CurrentPlayer == m_Manager.Player1 ? k_Player1 : k_Player2);
+            }
+
         }
 
         private void printBoard()
@@ -204,6 +208,7 @@ namespace OthelloGUI
                 if (result == DialogResult.No)
                 {
                     Close();
+                    m_UserEndGame = true;
                 }
                 else
                 {

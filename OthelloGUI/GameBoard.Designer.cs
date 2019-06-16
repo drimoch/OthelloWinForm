@@ -1,6 +1,6 @@
 ﻿namespace OthelloGUI
 {
-    partial class GameBoard
+    public partial class GameBoard
     {
         /// <summary>
         /// Required designer variable.
@@ -17,6 +17,7 @@
             {
                 components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 

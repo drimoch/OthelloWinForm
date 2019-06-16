@@ -90,18 +90,18 @@ namespace OthelloGUI
             {
                 getErrorMessage(i_Response);
             }
+
             if (!m_UserEndGame)
             {
-            printBoard();
-            GameManager.eResponseCode response = isBoardValid();
-            if (response != GameManager.eResponseCode.OK)
-            {
-                getErrorMessage(response);
-            }
+                printBoard();
+                GameManager.eResponseCode response = isBoardValid();
+                if (response != GameManager.eResponseCode.OK)
+                {
+                    getErrorMessage(response);
+                }
 
-            Text = string.Format("Othello - {0}'s Turn", m_Manager.CurrentPlayer == m_Manager.Player1 ? k_Player1 : k_Player2);
+                Text = string.Format("Othello - {0}'s Turn", m_Manager.CurrentPlayer == m_Manager.Player1 ? k_Player1 : k_Player2);
             }
-
         }
 
         private void printBoard()
@@ -139,9 +139,9 @@ namespace OthelloGUI
         private bool isBoardFull()
         {
             bool isFull = true;
-            foreach(Cell cell in m_Manager.Board)
+            foreach (Cell cell in m_Manager.Board)
             {
-                if(cell.CellType == Cell.eType.Empty)
+                if (cell.CellType == Cell.eType.Empty)
                 {
                     isFull = false;
                     break;
@@ -184,7 +184,7 @@ namespace OthelloGUI
                     break;
             }
 
-            if (message != string.Empty&&m_Manager.CurrentPlayer.PlayerID!= Player.ePlayerID.Computer)
+            if (message != string.Empty && m_Manager.CurrentPlayer.PlayerID != Player.ePlayerID.Computer)
             {
                 displayMessageBox(message, endOfGame);
             }
@@ -220,8 +220,12 @@ namespace OthelloGUI
         private string endOfGameMessage()
         {
             string winner = m_Manager.Winner.PlayerID == Player.ePlayerID.Player1 ? k_Player1 : k_Player2;
-            string message = string.Format("{0} Won! ({1}/{2}) ({3}/{4}){5}Would you like a another round?",
-                winner, m_Manager.Winner.Score, m_Manager.Losser.Score, m_Manager.Player1.RoundsWinner, m_Manager.Player2.RoundsWinner, Environment.NewLine);
+            string message = string.Format(
+                "{0} Won! ({1}/{2}) ({3}/{4}){5}Would you like a another round?",
+                winner, m_Manager.Winner.Score,
+                m_Manager.Losser.Score, m_Manager.Player1.RoundsWinner,
+                m_Manager.Player2.RoundsWinner,
+                Environment.NewLine);
 
             return message;
         }

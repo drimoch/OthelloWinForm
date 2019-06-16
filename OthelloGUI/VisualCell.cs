@@ -7,7 +7,7 @@ using OthelloLogic;
 
 namespace OthelloGUI
 {
-    class VisualCell
+    internal class VisualCell
     {
         private Image m_ImagePlayer1 = Properties.Resources.CoinRed;
         private Image m_ImagePlayer2 = Properties.Resources.CoinYellow;

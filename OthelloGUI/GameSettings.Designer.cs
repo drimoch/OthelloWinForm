@@ -1,6 +1,6 @@
 ﻿namespace OthelloGUI
 {
-    partial class GameSettings
+    public partial class GameSettings
     {
         /// <summary>
         /// Required designer variable.
@@ -17,6 +17,7 @@
             {
                 components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
@@ -86,7 +87,6 @@
 
         private System.Windows.Forms.Button buttonBoardSize;
         private System.Windows.Forms.Button buttonAgainstComputer;
-        private System.Windows.Forms.Button buttonAgainstFriend;       
+        private System.Windows.Forms.Button buttonAgainstFriend;
     }
 }
-

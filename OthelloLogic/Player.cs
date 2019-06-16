@@ -7,7 +7,7 @@ namespace OthelloLogic
     public class Player
     {
         // Members
-        private ePlayerID m_playerID;
+        private ePlayerID m_PlayerID;
         private int m_Score;
         private int m_RoundsWinner;
 
@@ -35,12 +35,12 @@ namespace OthelloLogic
         {
             get
             {
-                return m_playerID;
+                return m_PlayerID;
             }
 
             set
             {
-                m_playerID = value;
+                m_PlayerID = value;
             }
         }
 
@@ -60,7 +60,7 @@ namespace OthelloLogic
         // Methods
         public Player(ePlayerID i_PlayerID)
         {
-            m_playerID = i_PlayerID;
+            m_PlayerID = i_PlayerID;
             m_Score = 2; // 2 coins for each player when game starts
             m_RoundsWinner = 0;
         }
